@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taotao.manager.mapper.TbItemMapper">
+    <update id="takeOffBatch" >
+        UPDATE tbitem SET
+        status =0
+        <where>
+            <if test="tbItems!=null and tbItems.size>0">
+                <foreach collection="tbItems" open="id in (" separator=","
+                         close=")" item="tbItem">
+                    #{tbItem.id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+    <update id="takeUpBatch" >
+        UPDATE tbitem SET
+        status =1
+        <where>
+            <if test="tbItems!=null and tbItems.size>0">
+                <foreach collection="tbItems" open="id in (" separator=","
+                         close=")" item="tbItem">
+                    #{tbItem.id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+    <update id="deleteBatch" >
+        UPDATE tbitem SET
+        status =2
+        <where>
+            <if test="tbItems!=null and tbItems.size>0">
+                <foreach collection="tbItems" open="id in (" separator=","
+                         close=")" item="tbItem">
+                    #{tbItem.id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+    <select id="treesearch" resultType="com.taotao.manager.pojo.TreeResult">
+        SELECT * from tbitemcat where parentId = #{id}
+    </select>
+    <!-- 动态sql语句 -->
+    <!-- 动态条件 -->
+    <select id="searchItem" resultType="com.taotao.manager.pojo.TbItem">
+        SELECT * FROM tbItem
+        <where>
+            <if test="priceMin!= null and priceMax !=null ">
+                AND price BETWEEN #{priceMin} and #{priceMax}
+            </if>
+            <if test="title!=null">
+                and title LIKE '%${title}%'
+            </if>
+
+            <if test="cId!=null">
+                and  cId=#{cId}
+            </if>
+        </where>
+        limit #{page},#{limit}
+    </select>
+
+
+    <select id="findCountByC" resultType="int" >
+        SELECT COUNT(*)FROM tbItem
+        <where>
+            <if test="priceMin!= null and priceMax !=null ">
+                and price BETWEEN #{priceMin} and #{priceMax}
+            </if>
+            <if test="title!=null">
+                and title LIKE '%${title}%'
+            </if>
+            <if test="cId!=null">
+                and cId=#{cId}
+            </if>
+        </where>
+    </select>
+    <insert id="insertTbItem" parameterType="com.taotao.manager.pojo.TbItem">
+        INSERT  INTO tbitem (id,cId,title,sellPoint,price,num,barcode,image,status,created,updated)
+        VALUES (#{id},#{cId},#{title},#{sellPoint},#{price},#{num},#{barcode},#{image},#{status},#{created},#{updated})
+    </insert>
+    <insert id="insertTbItemDesc" parameterType="com.taotao.manager.pojo.TbItemDesc" >
+        INSERT  INTO tbitemdesc (itemId,itemDesc,created,updated)
+        VALUES  (#{itemId},#{itemDesc},#{created},#{updated})
+    </insert>
+    <resultMap type="com.taotao.common.pojo.TbItemParamGroup"
+               id="group_param">
+        <id property="id" column="groupId" />
+        <result property="groupName" column="groupName" />
+        <result property="ItemCatid" column="ItemCatid" />
+        <!-- 当定义集合属性的映射关系 使用collection标签  -->
+        <!-- property : 集合对象
+            ofType:集合里面存放的对象的全类名
+         -->
+        <collection property="paramKeys"
+                    ofType="com.taotao.common.pojo.TbItemParamKey">
+            <id property="id" column="paramid" />
+            <result property="paramName" column="paramName" />
+        </collection>
+
+    </resultMap>
+    <select id="showItemGroupById" parameterType="long" resultMap="group_param">
+        SELECT
+a.id groupId,
+a.groupName,
+a.itemCatId,
+b.id paramId,
+b.paramName
+FROM
+	tbitemparamgroup a
+INNER JOIN
+  tbitemparamkey b
+ON
+ a.id =b.groupId
+WHERE
+	itemCatId = #{cId}
+    </select>
+</mapper>
