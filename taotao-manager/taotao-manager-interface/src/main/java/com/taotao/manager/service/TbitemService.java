@@ -1,6 +1,7 @@
 package com.taotao.manager.service;
 
 import com.taotao.common.pojo.TaotaoResult;
+import com.taotao.common.pojo.TbItemParamValue;
 import com.taotao.manager.pojo.CurrencyResult;
 import com.taotao.manager.pojo.LowerResult;
 import com.taotao.manager.pojo.TbItem;
@@ -62,7 +63,7 @@ public interface TbitemService {
      * @param desc 商品描述信息
      * @return
      */
-    TaotaoResult addItem(TbItem item, String desc);
+    TaotaoResult addItem(TbItem item, String desc,List<TbItemParamValue> tbItemParamValues);
 
     /**
      * 通过cId 显示规格参数组信息和每一个对应的规格参数项
@@ -70,4 +71,6 @@ public interface TbitemService {
      * @return 规格参数组
      */
     TaotaoResult showItemGroupById(Long cId);
+
+
 }

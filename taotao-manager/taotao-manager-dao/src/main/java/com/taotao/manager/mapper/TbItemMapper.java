@@ -4,6 +4,7 @@ package com.taotao.manager.mapper;
 
 
 import com.taotao.common.pojo.TbItemParamGroup;
+import com.taotao.common.pojo.TbItemParamValue;
 import com.taotao.manager.pojo.TbItem;
 import com.taotao.manager.pojo.TbItemDesc;
 import com.taotao.manager.pojo.TreeResult;
@@ -95,4 +96,11 @@ public interface TbItemMapper {
      * @return
      */
     List<TbItemParamGroup> showItemGroupById(Long cId);
+
+    /**
+     * 在商品规格参数值表中插入 值
+     * @param tbItemParamValues
+     */
+
+    void insertTbItemParamValue(@Param("tbItemParamValues") List<TbItemParamValue> tbItemParamValues);
 }

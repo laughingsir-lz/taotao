@@ -82,7 +82,7 @@
     </insert>
     <insert id="insertTbItemDesc" parameterType="com.taotao.manager.pojo.TbItemDesc" >
         INSERT  INTO tbitemdesc (itemId,itemDesc,created,updated)
-        VALUES  (#{itemId},#{itemDesc},#{created},#{updated})
+        VALUE   (#{itemId},#{itemDesc},#{created},#{updated})
     </insert>
     <resultMap type="com.taotao.common.pojo.TbItemParamGroup"
                id="group_param">
@@ -116,4 +116,11 @@ ON
 WHERE
 	itemCatId = #{cId}
     </select>
+    <insert id="insertTbItemParamValue">
+        insert into tbitemparamvalue (itemId,paramId,paramValue)
+        <foreach collection="tbItemParamValues" open="values" separator=","
+                 item="tbItemParamValue">
+            (#{tbItemParamValue.itemId},#{tbItemParamValue.paramId},#{tbItemParamValue.paramValue})
+        </foreach>
+    </insert>
 </mapper>

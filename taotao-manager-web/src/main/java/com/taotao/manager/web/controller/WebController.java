@@ -2,6 +2,7 @@ package com.taotao.manager.web.controller;
 
 import com.taotao.common.pojo.PictureResult;
 import com.taotao.common.pojo.TaotaoResult;
+import com.taotao.common.pojo.TbItemParamValue;
 import com.taotao.manager.pojo.CurrencyResult;
 import com.taotao.manager.pojo.LowerResult;
 import com.taotao.manager.pojo.TbItem;
@@ -9,14 +10,12 @@ import com.taotao.manager.service.PictureService;
 import com.taotao.manager.service.TbitemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -79,8 +78,15 @@ public class WebController {
     }
     @RequestMapping("/addItem")
     @ResponseBody
-    public TaotaoResult saveItem(TbItem item, String itemDesc) {
-        TaotaoResult result = tbitemService.addItem(item, itemDesc);
+    public TaotaoResult saveItem(TbItem item, String itemDesc,@RequestParam(value = "paramKeyIds[]") Integer[] paramKeyIds,@RequestParam(value = "paramValue[]") String[] paramValue) {
+        List<TbItemParamValue> tbItemParamValues = new ArrayList<TbItemParamValue>();
+        for (int i = 0;i<paramKeyIds.length;i++){
+            TbItemParamValue tbItemParamValue = new TbItemParamValue();
+            tbItemParamValue.setParamId(paramKeyIds[i]);
+            tbItemParamValue.setParamValue(paramValue[i]);
+            tbItemParamValues.add(tbItemParamValue);
+        }
+         TaotaoResult result = tbitemService.addItem(item, itemDesc,tbItemParamValues);
         return result;
     }
 

@@ -2,6 +2,7 @@ package com.taotao.manager.service.impl;
 
 import com.taotao.common.pojo.TaotaoResult;
 import com.taotao.common.pojo.TbItemParamGroup;
+import com.taotao.common.pojo.TbItemParamValue;
 import com.taotao.common.utils.IDUtils;
 import com.taotao.manager.mapper.TbItemMapper;
 import com.taotao.manager.pojo.*;
@@ -99,7 +100,7 @@ public class TbitemServiceImpl implements TbitemService {
     }
 
     @Override
-    public TaotaoResult addItem(TbItem item, String desc) {
+    public TaotaoResult addItem(TbItem item, String desc,List<TbItemParamValue> tbItemParamValues) {
         // 1、生成商品id
         long itemId = IDUtils.genItemId();
         // 2、补全TbItem对象的属性
@@ -110,7 +111,7 @@ public class TbitemServiceImpl implements TbitemService {
         item.setCreated(date);
         item.setUpdated(date);
         // 3、向商品表插入数据
-        tbItemMapper.insertTbItem(item);
+         tbItemMapper.insertTbItem(item);
         // 4、创建一个TbItemDesc对象
         TbItemDesc itemDesc = new TbItemDesc();
         // 5、补全TbItemDesc的属性
@@ -120,6 +121,14 @@ public class TbitemServiceImpl implements TbitemService {
         itemDesc.setUpdated(date);
         // 6、向商品描述表插入数据
         tbItemMapper.insertTbItemDesc(itemDesc);
+
+        //7、绑定规格参数值表中itemid
+        for (TbItemParamValue tbItemParamValue:tbItemParamValues
+             ) {
+            tbItemParamValue.setItemId(itemId);
+        }
+        //7、向规格参数值表中写入值数据
+        tbItemMapper.insertTbItemParamValue(tbItemParamValues);
         return TaotaoResult.ok();
     }
 
