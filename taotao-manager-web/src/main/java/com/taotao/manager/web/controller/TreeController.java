@@ -1,6 +1,6 @@
 package com.taotao.manager.web.controller;
 
-import com.taotao.manager.pojo.TreeResult;
+import com.taotao.common.pojo.TreeResult;
 import com.taotao.manager.service.TbitemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

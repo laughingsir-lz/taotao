@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	http://www.springframework.org/schema/context
+	 http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	 http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+	<!-- 开启扫描 service包下的spring注解 加入到了 spring容器里面去了 -->
+	<context:component-scan base-package="com.taotao.content"></context:component-scan>
+
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg name="host" value="192.168.32.134"/>
+		<constructor-arg name="port" value="6379"/>
+	</bean>
+
+
+
+
+
+	<!-- 
+		原本 我们是 Mybatis mybatis = new Mybatis(配置文件);
+			1.配置文件
+			2.数据库连接池
+	 -->
+	 <!-- 数据库连接池
+	 		账号 密码 url 最大连接数 最小空闲书
+	  -->
+	 <context:property-placeholder location="classpath:*.properties" />
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		  destroy-method="close">
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="maxActive" value="10" />
+		<property name="minIdle" value="5" />
+	</bean>
+
+
+	<!-- 
+		我们spring 就有mybatis对象了
+	 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 数据库连接池 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 加载mybatis的全局配置文件
+			在spring的配置文件里面 去引用其他文件的时候 必须要加上classpath:
+		 -->
+		<property name="configLocation" value="classpath:SqlMapConfig.xml" />
+	</bean>
+
+	<!-- 配置Mapper扫描器
+		扫描com.taotao.manager.mapper包下面的 所有东西
+		接口和映射文件
+		吧接口和映射文件加载到spring容器里面去
+	-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.taotao.manager.mapper" />
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 传播行为 -->
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="create*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="select*" propagation="SUPPORTS" read-only="true" />
+			<tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 切面 -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice"
+					 pointcut="execution(* com.taotao.content.service.*.*(..))" />
+	</aop:config>
+
+
+
+
+	<!-- 使用dubbo发布服务 -->
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="taotao-content" />
+	<dubbo:registry protocol="zookeeper"
+					address="192.168.32.133:2181" />
+	<!-- 用dubbo协议在20880端口暴露服务 -->
+	<dubbo:protocol name="dubbo" port="20881" />
+	<!-- 声明需要暴露的服务接口 -->
+	<dubbo:service interface="com.taotao.content.service.TbContentCategoryService" ref="tbContentCategoryServiceImpl" />
+	<dubbo:service interface="com.taotao.content.service.TbItemCatService" ref="tbItemCatServiceImpl" />
+
+</beans>
+
+

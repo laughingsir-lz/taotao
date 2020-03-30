@@ -4,10 +4,11 @@ package com.taotao.manager.mapper;
 
 
 import com.taotao.common.pojo.TbItemParamGroup;
+import com.taotao.common.pojo.TbItemParamKey;
 import com.taotao.common.pojo.TbItemParamValue;
 import com.taotao.manager.pojo.TbItem;
 import com.taotao.manager.pojo.TbItemDesc;
-import com.taotao.manager.pojo.TreeResult;
+import com.taotao.common.pojo.TreeResult;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import java.util.List;
@@ -98,9 +99,37 @@ public interface TbItemMapper {
     List<TbItemParamGroup> showItemGroupById(Long cId);
 
     /**
-     * 在商品规格参数值表中插入 值
+     * 在商品规格参数值表中插入值
      * @param tbItemParamValues
      */
 
     void insertTbItemParamValue(@Param("tbItemParamValues") List<TbItemParamValue> tbItemParamValues);
+
+    /**
+     * 添加规格参数组的方法
+     * @param groups 规格参数组 包括 商品分类id，组名，项对象（项名）
+     *               注意：组的id自增长，项的id自增长
+     * @return
+     */
+    int addParamGroup(@Param("groups") List<TbItemParamGroup> groups);
+
+    /**
+     * 根据分类id查询组信息
+     * @param cId  分类id
+     * @return 规格参数组集合对象
+     */
+    List<TbItemParamGroup> findTbItemGroupBycId(Long cId);
+
+    /**
+     * 插入规格参数项数据到数据库中
+     * @param paramKeys 规格参数项集合对象
+     * @return
+     */
+    int addParamGroupKeys(@Param("paramKeys") List<TbItemParamKey> paramKeys);
+
+    int addParamGroup(TbItemParamGroup group);
+
+    TbItemParamGroup findIdByCIdAndName(Long cId, String name);
+
+    void addParamKey(TbItemParamKey tbItemParamKey);
 }

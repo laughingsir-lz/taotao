@@ -18,5 +18,11 @@ public class GroupController {
         TaotaoResult taotaoResult = tbitemService.showItemGroupById(cId);
         return taotaoResult;
     }
+    @RequestMapping("/addGroup")
+    @ResponseBody
+    public  TaotaoResult  addGroup(Long cId,String params){
+         TaotaoResult taotaoResult=tbitemService.addItemParamTemplate(cId,params);
+      return  taotaoResult;
+    }
 
 }

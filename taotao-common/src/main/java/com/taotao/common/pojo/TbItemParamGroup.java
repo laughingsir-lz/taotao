@@ -6,7 +6,7 @@ import java.util.List;
 public class TbItemParamGroup implements Serializable{
     private  Integer id;
     private  String groupName;
-    private  Long ItemCatid;
+    private  Long itemCatId;
     //建立一对多关系
     List<TbItemParamKey> paramKeys;
 
@@ -34,12 +34,12 @@ public class TbItemParamGroup implements Serializable{
         this.groupName = groupName;
     }
 
-    public Long getItemCatid() {
-        return ItemCatid;
+    public Long getItemCatId() {
+        return itemCatId;
     }
 
-    public void setItemCatid(Long itemCatid) {
-        ItemCatid = itemCatid;
+    public void setItemCatId(Long itemCatId) {
+        this.itemCatId = itemCatId;
     }
 
     @Override
@@ -47,7 +47,8 @@ public class TbItemParamGroup implements Serializable{
         return "TbItemParamGroup{" +
                 "id=" + id +
                 ", groupName='" + groupName + '\'' +
-                ", ItemCatid=" + ItemCatid +
+                ", itemCatId=" + itemCatId +
+                ", paramKeys=" + paramKeys +
                 '}';
     }
 }

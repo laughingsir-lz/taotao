@@ -39,7 +39,7 @@
             </if>
         </where>
     </update>
-    <select id="treesearch" resultType="com.taotao.manager.pojo.TreeResult">
+    <select id="treesearch" resultType="com.taotao.common.pojo.TreeResult">
         SELECT * from tbitemcat where parentId = #{id}
     </select>
     <!-- 动态sql语句 -->
@@ -88,7 +88,7 @@
                id="group_param">
         <id property="id" column="groupId" />
         <result property="groupName" column="groupName" />
-        <result property="ItemCatid" column="ItemCatid" />
+        <result property="itemCatId" column="itemCatId" />
         <!-- 当定义集合属性的映射关系 使用collection标签  -->
         <!-- property : 集合对象
             ofType:集合里面存放的对象的全类名
@@ -98,7 +98,6 @@
             <id property="id" column="paramid" />
             <result property="paramName" column="paramName" />
         </collection>
-
     </resultMap>
     <select id="showItemGroupById" parameterType="long" resultMap="group_param">
         SELECT
@@ -121,6 +120,21 @@ WHERE
         <foreach collection="tbItemParamValues" open="values" separator=","
                  item="tbItemParamValue">
             (#{tbItemParamValue.itemId},#{tbItemParamValue.paramId},#{tbItemParamValue.paramValue})
+        </foreach>
+    </insert>
+    <insert id="addParamGroup">
+        INSERT INTO tbitemparamgroup(groupName,itemCatId)
+        <foreach collection="groups" open="values" separator="," item="group">
+            (#{group.groupName},#{group.itemCatId})
+        </foreach>
+    </insert>
+    <select id="findTbItemGroupBycId" parameterType="long" resultType="com.taotao.common.pojo.TbItemParamGroup">
+        SELECT * FROM tbitemparamgroup WHERE  itemCatId = #{cId}
+    </select>
+    <insert id="addParamGroupKeys">
+        INSERT INTO tbitemparamkey(paramName,groupId)
+        <foreach collection="paramKeys" open="values" separator="," item="paramKey">
+            (#{paramKey.paramName},#{paramKey.groupId })
         </foreach>
     </insert>
 </mapper>

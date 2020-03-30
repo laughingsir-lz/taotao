@@ -2,10 +2,10 @@ package com.taotao.manager.service;
 
 import com.taotao.common.pojo.TaotaoResult;
 import com.taotao.common.pojo.TbItemParamValue;
-import com.taotao.manager.pojo.CurrencyResult;
+import com.taotao.common.pojo.CurrencyResult;
 import com.taotao.manager.pojo.LowerResult;
 import com.taotao.manager.pojo.TbItem;
-import com.taotao.manager.pojo.TreeResult;
+import com.taotao.common.pojo.TreeResult;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public interface TbitemService {
      * @param limit 当前页数据条数
      * @return json实体类
      */
-    public CurrencyResult findByPage(int page, int limit);
+    CurrencyResult findByPage(int page, int limit);
 
     /**
      * 商品下架
@@ -71,6 +71,17 @@ public interface TbitemService {
      * @return 规格参数组
      */
     TaotaoResult showItemGroupById(Long cId);
+
+    /**
+     * 通过分类id和参数实现添加规格参数组，创建模板
+     * @param cId
+     * @param params
+     * @return
+     */
+    TaotaoResult addItemParamTemplate(Long cId,String params);
+
+
+    void  dataInit();
 
 
 }

@@ -1,15 +1,15 @@
 package com.taotao.manager.service.impl;
 
-import com.taotao.common.pojo.TaotaoResult;
-import com.taotao.common.pojo.TbItemParamGroup;
-import com.taotao.common.pojo.TbItemParamValue;
+import com.taotao.common.pojo.*;
 import com.taotao.common.utils.IDUtils;
+import com.taotao.manager.mapper.SearchMapper;
 import com.taotao.manager.mapper.TbItemMapper;
 import com.taotao.manager.pojo.*;
 import com.taotao.manager.service.TbitemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +17,8 @@ import java.util.List;
 public class TbitemServiceImpl implements TbitemService {
     @Autowired
     private TbItemMapper tbItemMapper;
+    @Autowired
+    private SearchMapper searchMapper;
     @Override
     public TbItem findTbitemById(long tbitemid) {
         TbItem item = tbItemMapper.findTbitemById( tbitemid);
@@ -95,7 +97,7 @@ public class TbitemServiceImpl implements TbitemService {
 
     @Override
     public List<TreeResult> treesearch(long id) {
-        List<TreeResult> treeResults =tbItemMapper.treesearch( id);
+        List<TreeResult> treeResults =tbItemMapper.treesearch(id);
         return treeResults;
     }
 
@@ -139,11 +141,68 @@ public class TbitemServiceImpl implements TbitemService {
         if(group.size()<=0){
             taotaoResult.setStatus(500);
             taotaoResult.setMsg("该分类没有规格参数模板，请创建规格参数模板");
+        }else {
+            taotaoResult.setStatus(200);
+            taotaoResult.setMsg("有规格参数模板333333");
+            taotaoResult.setData(group);
         }
-        taotaoResult.setStatus(200);
-        taotaoResult.setMsg("有规格参数模板");
-        taotaoResult.setData(group);
+
         return taotaoResult;
+    }
+    @Override
+    public TaotaoResult addItemParamTemplate(Long cId, String params) {
+        List<TbItemParamGroup> groups = new ArrayList<TbItemParamGroup>();
+        String[] split = params.split("clive");
+        for (int i=0;i<split.length;i++){
+            TbItemParamGroup group =new TbItemParamGroup();
+            String string = split[i];
+            String[] split2 =string.split(",");
+            List<TbItemParamKey> tbItemParamKeys = new ArrayList<TbItemParamKey>();
+            for(int j=0;j<=split2.length;j++){
+                if (j==0){
+                    group.setGroupName(split2[j]);
+                }else {
+                    TbItemParamKey tbItemParamKey = new TbItemParamKey();
+                    tbItemParamKey.setParamName(split2[i]);
+                    tbItemParamKeys.add(tbItemParamKey);
+                }
+            }
+            group.setParamKeys(tbItemParamKeys);
+            groups.add(group);
+        }
+        for (TbItemParamGroup group: groups) {
+            group.setItemCatId(cId);
+        }
+        int i =tbItemMapper.addParamGroup(groups);
+        if (i<=0){
+            return TaotaoResult.build(500,"添加规格参数失败");
+        }else {
+            List<TbItemParamGroup> itemParamGroups =tbItemMapper.findTbItemGroupBycId(cId);
+            for (int j = 0; j<groups.size();j++){
+                TbItemParamGroup dataBaseGroup = itemParamGroups.get(j);
+                TbItemParamGroup javaGroup =groups.get(j);
+                if (dataBaseGroup.getGroupName().equals(javaGroup.getGroupName())){
+                    List<TbItemParamKey> paramKeys =javaGroup.getParamKeys();
+                    for (TbItemParamKey tbItemParamKey:paramKeys){
+                        tbItemParamKey.setGroupId(dataBaseGroup.getId());
+                    }
+                }
+            }
+        }
+        for (TbItemParamGroup group:groups) {
+            List<TbItemParamKey> paramKeys = group.getParamKeys();
+            int j =tbItemMapper.addParamGroupKeys(paramKeys);
+            if (j<=0){
+                return TaotaoResult.build(500,"添加规格参数失败");
+            }
+        }
+        return TaotaoResult.build(200,"添加规格参数成功");
+    }
+
+    @Override
+    public void dataInit() {
+        List<SearchResult> searchResults =searchMapper.findResult();
+        System.out.println(searchResults);
     }
 }
 
