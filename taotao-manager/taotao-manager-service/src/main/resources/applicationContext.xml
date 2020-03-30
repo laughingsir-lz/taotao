@@ -13,11 +13,42 @@
 
 	<!-- 开启扫描 service包下的spring注解 加入到了 spring容器里面去了 -->
 	<context:component-scan base-package="com.taotao.manager.service"></context:component-scan>
-	<!-- 
-		原本 我们是 Mybatis mybatis = new Mybatis(配置文件);
-			1.配置文件
-			2.数据库连接池
-	 -->
+
+	<!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供 -->
+	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="tcp://192.168.32.136:61616" />
+	</bean>
+	<!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory -->
+	<bean id="connectionFactory"
+		  class="org.springframework.jms.connection.SingleConnectionFactory">
+		<!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory -->
+		<property name="targetConnectionFactory" ref="targetConnectionFactory" />
+	</bean>
+	<!-- 配置生产者 -->
+	<!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<!-- 这个connectionFactory对应的是我们定义的Spring提供的那个ConnectionFactory对象 -->
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+	<!--这个是队列目的地，点对点的
+	<bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>spring-queue</value>
+		</constructor-arg>
+	</bean>
+	-->
+	<!--这个是主题目的地，一对多的 -->
+	<bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="topic" />
+	</bean>
+
+
+
+		<!--
+            原本 我们是 Mybatis mybatis = new Mybatis(配置文件);
+                1.配置文件
+                2.数据库连接池
+         -->
 	 <!-- 数据库连接池
 	 		账号 密码 url 最大连接数 最小空闲书
 	  -->

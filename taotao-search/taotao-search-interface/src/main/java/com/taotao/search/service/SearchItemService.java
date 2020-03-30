@@ -19,4 +19,5 @@ public interface SearchItemService {
     SearchResult search(String queryString, int page, int rows) throws Exception;
 
     void addDocument(SearchItem searchItem);
+    TaotaoResult addDocument(Long itemId) throws Exception;
 }

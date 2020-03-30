@@ -7,8 +7,11 @@ import com.taotao.manager.mapper.TbItemMapper;
 import com.taotao.manager.pojo.*;
 import com.taotao.manager.service.TbitemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
 
+import javax.jms.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +22,10 @@ public class TbitemServiceImpl implements TbitemService {
     private TbItemMapper tbItemMapper;
     @Autowired
     private SearchMapper searchMapper;
+    @Autowired
+    private JmsTemplate jmsTemplate;
+    @Autowired
+    private Destination destination;
     @Override
     public TbItem findTbitemById(long tbitemid) {
         TbItem item = tbItemMapper.findTbitemById( tbitemid);
@@ -104,7 +111,7 @@ public class TbitemServiceImpl implements TbitemService {
     @Override
     public TaotaoResult addItem(TbItem item, String desc,List<TbItemParamValue> tbItemParamValues) {
         // 1、生成商品id
-        long itemId = IDUtils.genItemId();
+        final long itemId = IDUtils.genItemId();
         // 2、补全TbItem对象的属性
         item.setId(itemId);
         //商品状态，1-正常，2-下架，3-删除
@@ -131,6 +138,16 @@ public class TbitemServiceImpl implements TbitemService {
         }
         //7、向规格参数值表中写入值数据
         tbItemMapper.insertTbItemParamValue(tbItemParamValues);
+        //8、添加完信息后，要发布个activeMQ消息队列
+        jmsTemplate.send(destination, new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                //消息的内容就是商品id
+                TextMessage textMessage = session.createTextMessage(itemId + "");
+                System.out.println("发送消息成功");
+                return textMessage;
+            }
+        });
         return TaotaoResult.ok();
     }
 
